@@ -34,7 +34,7 @@ app.get('/video', async (req, res) => {
     //}
 
     try {
-        const info = await ytdl.getInfo(url);
+        /*const info = await ytdl.getInfo(url);
 
         const format = ytdl.chooseFormat(info.formats, { quality: 'highestvideo' });
 
@@ -45,14 +45,35 @@ app.get('/video', async (req, res) => {
         if (!format || !format.url) {
             return res.status(404).json({ error: 'Suitable format not found' });
         }
-
         return res.json({
-            videoUrl: format.url,
+            url: format.url,
             title: info.videoDetails.title,
             author: info.videoDetails.author.name,
             lengthSeconds: info.videoDetails.lengthSeconds,
         });
+        */
+        const youtubedl = require('youtube-dl-exec')
 
+        const output = await youtubedl(url, {
+            dumpSingleJson: true,
+            preferFreeFormats: true,
+            noCheckCertificates: true,
+            noWarnings: true,
+            format: 'best[ext=mp4]',
+            addHeader: ['referer:youtube.com', 'user-agent:googlebot']
+        });
+
+        return res.json({
+            id: output?.id,
+            title: output?.title,
+            url: output?.url,
+            channel_id: output?.channel_id,
+            duration: output?.duration,
+            view_count: output?.view_count,
+            like_count: output?.like_count,
+            is_live: output?.is_live,
+            duration_string: output?.duration_string,
+        });
     } catch (err) {
         console.error('Error:', err);
         return res.status(500).json({ error: 'Failed to retrieve video info' });
