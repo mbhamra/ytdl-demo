@@ -2,7 +2,13 @@ const express = require('express');
 const ytdl = require('ytdl-core');
 const app = express();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
+
+app.use((req, res, next) => {
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Keep-Alive', 'timeout=5, max=1000');
+    next();
+});
 
 app.get('/', (req, res) => {
     res.send(`
@@ -42,6 +48,10 @@ app.get('/video', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`✅ Server is running at http://localhost:${PORT}`);
+const server = app.listen(PORT, () => {
+    console.log(`✅ Server is running at http://serverhost:${PORT}`);
 });
+
+server.keepAliveTimeout = 65 * 1000;
+server.headersTimeout = 66 * 1000;
+server.setTimeout(10 * 60 * 1000);
