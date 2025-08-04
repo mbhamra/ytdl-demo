@@ -60,7 +60,7 @@ app.get('/video', async (req, res) => {
             noCheckCertificates: true,
             noWarnings: true,
             format: 'best[ext=mp4]',
-            addHeader: ['referer:youtube.com', 'user-agent:googlebot']
+            addHeader: ['referer:youtube.com', 'user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36']
         });
 
         return res.json({
@@ -76,7 +76,7 @@ app.get('/video', async (req, res) => {
         });
     } catch (err) {
         console.error('Error:', err);
-        return res.status(500).json({ error: 'Failed to retrieve video info' });
+        return res.status(500).json({ error: 'Failed to retrieve video info', msg: err.message });
     }
 });
 
