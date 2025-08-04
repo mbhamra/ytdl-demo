@@ -25,26 +25,37 @@ app.get('/video', async (req, res) => {
     const videoId = req.query.id;
 
     if (!videoId) {
-        return res.status(400).send('Missing video ID');
+        return res.status(400).json({ error: 'video id not found' });
     }
 
     let url = `https://www.youtube.com/watch?v=${videoId}`;
-    if (videoId.includes('youtube.com')) {
-        url = videoId;
-    }
+    //if (videoId.includes('youtube.com')) {
+    //    url = videoId;
+    //}
 
     try {
         const info = await ytdl.getInfo(url);
 
         const format = ytdl.chooseFormat(info.formats, { quality: 'highestvideo' });
 
-        res.header('Content-Disposition', `inline; filename="${videoId}.mp4"`);
-        res.header('Content-Type', 'video/mp4');
+        // res.header('Content-Disposition', `inline; filename="${videoId}.mp4"`);
+        // res.header('Content-Type', 'video/mp4');
 
-        ytdl(url, { format }).pipe(res);
+        // ytdl(url, { format }).pipe(res);
+        if (!format || !format.url) {
+            return res.status(404).json({ error: 'Suitable format not found' });
+        }
+
+        return res.json({
+            videoUrl: format.url,
+            title: info.videoDetails.title,
+            author: info.videoDetails.author.name,
+            lengthSeconds: info.videoDetails.lengthSeconds,
+        });
+
     } catch (err) {
         console.error('Error:', err);
-        res.status(500).send('Failed to stream video.');
+        return res.status(500).json({ error: 'Failed to retrieve video info' });
     }
 });
 
